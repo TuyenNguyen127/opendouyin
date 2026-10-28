@@ -1,0 +1,87 @@
+# Cấu hình mặc định cho opendouyin. Mọi giá trị đều có thể ghi đè ở đây.
+workdir: projects
+
+# AI viết script / SEO
+llm:
+  provider: ollama       # ollama (local, miễn phí) | manual (copy-paste ChatGPT/Gemini) | claude (API trả phí)
+  ollama_model: qwen3:8b # GPU 12GB: qwen3:8b; GPU 16GB+: qwen3:14b
+  ollama_url: http://localhost:11434
+  claude_model: claude-opus-5-5
+
+# Bước 1 — tìm "mỏ" content trên Bilibili
+discover:
+  source: popular        # popular | ranking | search
+  keyword: ""            # dùng khi source=search, vd: "反转 剧情" (plot twist)
+  order: click           # search: totalrank | click | pubdate | stow
+  pages: 2
+  min_views: 100000
+  min_duration: 30       # giây
+  max_duration: 600
+  limit: 20
+
+# Bước 2 — tải video (yt-dlp: Bilibili, Douyin, YouTube, TikTok...)
+download:
+  format: "bv*[height<=1080]+ba/b[height<=1080]/b"
+  cookies: null          # đường dẫn cookies.txt (cần cho Douyin / Bilibili 1080p)
+
+# Bước 3a — lấy sub (Whisper chạy local, GPU nếu có)
+transcribe:
+  model: large-v3        # tiny | base | small | medium | large-v3
+  language: zh
+  device: auto           # auto | cuda | cpu
+  compute_type: auto     # auto | float16 | int8
+  vision_fallback: true  # video không thoại -> Claude đọc khung hình (chỉ khi llm.provider: claude)
+  vision_interval: 3.0   # giây giữa 2 khung hình
+  vision_max_frames: 40
+
+# Bước 3b — dịch + viết lại script
+rewrite:
+  target_language: "tiếng Việt"
+  style: "kể chuyện cuốn hút, tự nhiên như người Việt kể cho bạn bè nghe, câu ngắn, có cao trào"
+  chars_per_second: 15   # tốc độ đọc ước tính của giọng TTS, để script khớp thời lượng cảnh
+
+# Bước 4 — tạo giọng mới
+tts:
+  provider: edge         # edge (miễn phí) | elevenlabs
+  edge_voice: vi-VN-HoaiMyNeural   # hoặc vi-VN-NamMinhNeural
+  edge_rate: "+10%"
+  elevenlabs_voice_id: ""
+  elevenlabs_model: eleven_multilingual_v2
+
+# Bước 5 — dựng lại video
+edit:
+  aspect: "9:16"         # 9:16 | 16:9 | source
+  width: 1080
+  height: 1920
+  fps: 30
+  mirror: true           # lật ngang
+  zoom: 1.08             # phóng nhẹ để đổi khung hình
+  brightness: 0.02
+  contrast: 1.05
+  saturation: 1.10
+  blur_region: null      # che sub gốc: [trên, dưới] theo tỉ lệ chiều cao video gốc, vd [0.80, 0.94];
+                         # sub tiếng Việt sẽ được đặt đúng vào dải này
+  hook: true             # đưa cảnh cao trào lên đầu làm teaser
+  max_gap: 3.0           # đoạn không thoại dài hơn sẽ bị cắt ngắn lại (giây); null = giữ nguyên
+  max_voice_speedup: 1.25
+  min_video_speed: 0.80
+  max_video_speed: 1.30   # giọng ngắn hơn cảnh: tua hình nhanh tối đa bao nhiêu
+  max_slack: 0.8          # giọng ngắn hơn cảnh quá ngần này (giây) thì tua/cắt bớt hình
+  original_audio_volume: 0.08   # giữ tiếng nền gốc nhỏ dưới giọng mới
+  gap_audio_volume: 0.6         # âm lượng gốc ở các đoạn không thoại
+  bgm: null              # đường dẫn file nhạc nền (tuỳ chọn)
+  bgm_volume: 0.12
+  subtitles: true
+  font: "Arial"
+  font_size: 64
+  encoder: libx264       # h264_nvenc để dùng GPU NVIDIA
+  crf: 20
+
+# Bước 6 — SEO + thumbnail
+seo:
+  platform: "TikTok"     # TikTok | YouTube Shorts | Facebook Reels
+thumbnail:
+  fonts:
+    - C:/Windows/Fonts/arialbd.ttf
+    - C:/Windows/Fonts/segoeuib.ttf
+    - /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf

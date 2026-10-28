@@ -1,0 +1,10 @@
+anthropic>=2.3
+pydantic>=2.7
+yt-dlp>=2026.10
+faster-whisper>=1.2
+edge-tts>=7.0
+requests>=2.32
+Pillow>=11
+PyYAML>=6
+python-dotenv>=1.0
+imageio-ffmpeg>=0.6   # ffmpeg dự phòng nếu máy chưa cài

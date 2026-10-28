@@ -1,0 +1,6 @@
+.venv/
+.env
+projects/
+__pycache__/
+*.pyc
+.claude/settings.local.json
